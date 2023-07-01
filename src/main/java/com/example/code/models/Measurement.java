@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "measurements")
@@ -18,13 +19,13 @@ public class Measurement {
     private int id;
 
     @Column(name = "value")
-    @NotEmpty(message = "Temperature value should be not empty")
+    @NotNull(message = "Temperature value should be not null")
     @Min(value = -100, message = "Temperature cannot be lower than -100 C")
     @Max(value = 100, message = "Temperature cannot be greater than 100 C")
     private double value;
 
     @Column(name = "raining")
-    @NotEmpty(message = "Expression should be not empty")
+    @NotNull(message = "Expression should be not null")
     private boolean raining;
 
     @ManyToOne
