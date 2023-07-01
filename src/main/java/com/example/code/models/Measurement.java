@@ -1,5 +1,8 @@
 package com.example.code.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -26,6 +29,7 @@ public class Measurement {
 
     @ManyToOne
     @JoinColumn(name = "sensor_id",referencedColumnName = "id")
+    @JsonBackReference
     private Sensor sensor;
 
     public int getId() {

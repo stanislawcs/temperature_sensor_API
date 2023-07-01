@@ -1,5 +1,7 @@
 package com.example.code.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -17,6 +19,7 @@ public class Sensor {
     private String name;
 
     @OneToMany(mappedBy = "sensor")
+    @JsonManagedReference
     private List<Measurement> measurements;
 
     public Sensor(){}
