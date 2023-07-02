@@ -1,43 +1,22 @@
-package com.example.code.models;
+package com.example.code.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.example.code.models.Sensor;
 
-import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-@Entity
-@Table(name = "measurements")
-public class Measurement {
+public class MeasurementDTO {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(name = "value")
     @NotNull(message = "Temperature value should be not null")
     @Min(value = -100, message = "Temperature cannot be lower than -100 C")
     @Max(value = 100, message = "Temperature cannot be greater than 100 C")
     private double value;
 
-    @Column(name = "raining")
-    @NotNull(message = "Expression should be not null")
+    @NotNull(message = "Expression value should be not null")
     private boolean raining;
 
-    @ManyToOne
-    @JoinColumn(name = "sensor", referencedColumnName = "name")
-    @JsonBackReference
-    private Sensor sensor;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private SensorDTO sensor;
 
     public double getValue() {
         return value;
@@ -55,11 +34,11 @@ public class Measurement {
         this.raining = raining;
     }
 
-    public Sensor getSensor() {
+    public SensorDTO getSensor() {
         return sensor;
     }
 
-    public void setSensor(Sensor sensor) {
+    public void setSensor(SensorDTO sensor) {
         this.sensor = sensor;
     }
 }

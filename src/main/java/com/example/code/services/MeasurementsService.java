@@ -9,13 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class MeasurementsService {
 
     private final MeasurementsRepository measurementsRepository;
+    private final SensorService sensorService;
 
     @Autowired
-    public MeasurementsService(MeasurementsRepository measurementsRepository) {
+    public MeasurementsService(MeasurementsRepository measurementsRepository, SensorService sensorService) {
         this.measurementsRepository = measurementsRepository;
+        this.sensorService = sensorService;
     }
 
     public List<Measurement> findAll(){
@@ -24,7 +27,12 @@ public class MeasurementsService {
 
     @Transactional
     public void save(Measurement measurement){
+        enrichMeasurements(measurement);
         measurementsRepository.save(measurement);
+    }
+
+    public void enrichMeasurements(Measurement measurement){
+        measurement.setSensor(sensorService.findByName(measurement.getSensor().getName()).get());
     }
 
     public long calculateCountOfRainyDays(){
