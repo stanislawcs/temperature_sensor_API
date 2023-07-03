@@ -21,21 +21,21 @@ public class MeasurementsService {
         this.sensorService = sensorService;
     }
 
-    public List<Measurement> findAll(){
-       return measurementsRepository.findAll();
+    public List<Measurement> findAll() {
+        return measurementsRepository.findAll();
     }
 
     @Transactional
-    public void save(Measurement measurement){
+    public void save(Measurement measurement) {
         enrichMeasurements(measurement);
         measurementsRepository.save(measurement);
     }
 
-    public void enrichMeasurements(Measurement measurement){
+    public void enrichMeasurements(Measurement measurement) {
         measurement.setSensor(sensorService.findByName(measurement.getSensor().getName()).get());
     }
 
-    public long calculateCountOfRainyDays(){
+    public long calculateCountOfRainyDays() {
         return measurementsRepository.findAll().stream().filter(Measurement::isRaining).count();
     }
 }

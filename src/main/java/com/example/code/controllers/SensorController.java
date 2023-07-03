@@ -5,6 +5,7 @@ import com.example.code.models.Sensor;
 import com.example.code.services.SensorService;
 import com.example.code.util.SensorErrorResponse;
 import com.example.code.util.SensorNotCreatedException;
+import com.example.code.util.SensorValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,20 +21,29 @@ import java.util.List;
 @RequestMapping("/sensor")
 public class SensorController {
 
-    private final SensorService sensorService;
     private final ModelMapper modelMapper;
+    private final SensorService sensorService;
+    private final SensorValidator sensorValidator;
 
     @Autowired
-    public SensorController(SensorService sensorService, ModelMapper modelMapper) {
-        this.sensorService = sensorService;
+    public SensorController(ModelMapper modelMapper,
+                            SensorService sensorService,
+                            SensorValidator sensorValidator) {
+
         this.modelMapper = modelMapper;
+        this.sensorService = sensorService;
+        this.sensorValidator = sensorValidator;
     }
 
     @PostMapping("/registration")
     public ResponseEntity<HttpStatus> registerSensor(@RequestBody @Valid SensorDTO sensorDTO,
                                                      BindingResult bindingResult) {
 
+        Sensor sensor = convertToSensor(sensorDTO);
+        sensorValidator.validate(sensor, bindingResult);
+
         if (bindingResult.hasErrors()) {
+
             StringBuilder message = new StringBuilder();
             List<FieldError> errors = bindingResult.getFieldErrors();
 
@@ -41,15 +51,17 @@ public class SensorController {
                 message.append(error.getField()).append(" - ")
                         .append(error.getDefaultMessage()).append(";");
             }
+
             throw new SensorNotCreatedException(message.toString());
         }
 
-        sensorService.save(convertToSensor(sensorDTO));
+        sensorService.save(sensor);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @ExceptionHandler
     private ResponseEntity<SensorErrorResponse> handleException(SensorNotCreatedException e) {
+
         SensorErrorResponse sensorErrorResponse = new SensorErrorResponse(
                 e.getMessage(), System.currentTimeMillis());
 

@@ -1,7 +1,5 @@
 package com.example.code.dto;
 
-import com.example.code.models.Sensor;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;

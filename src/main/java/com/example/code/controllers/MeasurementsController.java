@@ -1,10 +1,12 @@
 package com.example.code.controllers;
 
 import com.example.code.dto.MeasurementDTO;
+import com.example.code.dto.MeasurementsResponse;
 import com.example.code.models.Measurement;
 import com.example.code.services.MeasurementsService;
 import com.example.code.util.MeasurementErrorResponse;
 import com.example.code.util.MeasurementNotCreatedException;
+import com.example.code.util.MeasurementsValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,26 +23,32 @@ import java.util.stream.Collectors;
 @RequestMapping("/measurements")
 public class MeasurementsController {
 
-    private final MeasurementsService measurementsService;
     private final ModelMapper modelMapper;
+    private final MeasurementsService measurementsService;
+    private final MeasurementsValidator measurementsValidator;
+
 
     @Autowired
-    public MeasurementsController(MeasurementsService measurementsService, ModelMapper modelMapper) {
-        this.measurementsService = measurementsService;
+    public MeasurementsController(ModelMapper modelMapper,
+                                  MeasurementsService measurementsService,
+                                  MeasurementsValidator measurementsValidator) {
         this.modelMapper = modelMapper;
+        this.measurementsService = measurementsService;
+        this.measurementsValidator = measurementsValidator;
     }
 
     @GetMapping()
-    public List<MeasurementDTO> getAll() {
-        return measurementsService.findAll().stream()
-                .map(this::convertToMeasurementDTO).collect(Collectors.toList());
+    public MeasurementsResponse getAll() {
+        return new MeasurementsResponse(measurementsService.findAll().stream()
+                .map(this::convertToMeasurementDTO).collect(Collectors.toList()));
     }
 
     @PostMapping("/add")
     public ResponseEntity<HttpStatus> addMeasurement(@RequestBody @Valid MeasurementDTO measurementDTO,
                                                      BindingResult bindingResult) {
 
-
+        Measurement measurement = convertToMeasurement(measurementDTO);
+        measurementsValidator.validate(measurement, bindingResult);
 
         if (bindingResult.hasErrors()) {
             StringBuilder message = new StringBuilder();
@@ -50,10 +58,11 @@ public class MeasurementsController {
                 message.append(error.getField()).append(" - ")
                         .append(error.getDefaultMessage()).append(";");
             }
+
             throw new MeasurementNotCreatedException(message.toString());
         }
 
-        measurementsService.save(convertToMeasurement(measurementDTO));
+        measurementsService.save(measurement);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -62,9 +71,9 @@ public class MeasurementsController {
         return measurementsService.calculateCountOfRainyDays();
     }
 
-
     @ExceptionHandler
     private ResponseEntity<MeasurementErrorResponse> handleException(MeasurementNotCreatedException e) {
+
         MeasurementErrorResponse measurementErrorResponse = new MeasurementErrorResponse(
                 e.getMessage(), System.currentTimeMillis());
 

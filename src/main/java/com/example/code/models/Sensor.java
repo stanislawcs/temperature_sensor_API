@@ -23,7 +23,8 @@ public class Sensor implements Serializable {
     @JsonManagedReference
     private List<Measurement> measurements;
 
-    public Sensor(){}
+    public Sensor() {
+    }
 
     public int getId() {
         return id;
